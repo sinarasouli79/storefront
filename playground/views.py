@@ -1,10 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.db.models import Q, F
-from store.models import Order, Customer, Collection,Product, OrderItem
-
+from django.db.models.aggregates import Count, Min
+from store.models import Product
 
 def say_hello(request):
 
-    queryset = Order.objects.order_by('-placed_at').select_related('customer').prefetch_related('orderitem_set__product')[:5]
-    return render(request, 'hello.html', {'name': 'Mosh', 'orders': queryset})
+    result = Product.objects.aggregate(min=Min('unit_price'), count=Count('id'))
+    return render(request, 'hello.html', {'name': 'Mosh', 'result': result})
