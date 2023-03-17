@@ -7,9 +7,14 @@
   <h1>Hello World</h1>
   {% endif %}
   <ul>
-    {% for object in object_list %}
+    {% for order in orders %}
     <li>
-      {{object.title}}- {{object.unit_price}}
+        {{order.id}}-{{order.customer.first_name}} 
+        <ul>
+          {% for item in order.orderitem_set.all %}
+            <li>{{item.product.title}}</li>
+          {%endfor%}
+        </ul>
     </li>
     {% endfor %}
   </ul>
