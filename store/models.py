@@ -1,4 +1,18 @@
 from django.db import models
+from tags.models import TaggedItem
+from django.contrib.contenttypes.models import ContentType
+
+
+class TaggedItemManager(models.Manager):
+    def get_tags_for(self, object_type, object_id):
+
+        content_type = ContentType.objects.get_for_model(object_type)
+        return TaggedItem.objects\
+            .select_related('tag')\
+            .filter(
+                content_type=content_type,
+                object_id=object_id
+            )
 
 
 class Promotion(models.Model):
@@ -13,6 +27,7 @@ class Collection(models.Model):
 
 
 class Product(models.Model):
+    objects = TaggedItemManager()
     title = models.CharField(max_length=255)
     slug = models.SlugField()
     description = models.TextField()
