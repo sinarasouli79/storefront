@@ -6,5 +6,8 @@ from tags.models import TaggedItem
 
 def say_hello(request):
 
-    queryset = Product.objects.get_tags_for(Product, 1)
+    queryset = Product.objects.all()
+    list(queryset)
+    list(queryset)
+    queryset[0]
     return render(request, 'hello.html', {'name': 'Mosh', 'result': queryset})
