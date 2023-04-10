@@ -14,11 +14,14 @@ class CustomerAdmin(admin.ModelAdmin):
 
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['title', 'unit_price', 'inventory']
-    list_editable = ['inventory']
+    list_display = ['title', 'unit_price', 'inventory_status']
+    list_editable = ['unit_price']
     ordering = ['title', 'unit_price']
     list_per_page = 10
 
+    @admin.display(ordering='inventory')
+    def inventory_status(self, product):
+        return 'Low' if product.inventory else 'Ok'
 
 @admin.register(models.Collection)
 class CollectionAdmin(admin.ModelAdmin):
