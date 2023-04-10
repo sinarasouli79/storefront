@@ -29,3 +29,17 @@ class CollectionAdmin(admin.ModelAdmin):
     ordering = ['title']
     list_per_page = 10
 
+@admin.register(models.Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['payment_status', 'placed_at', 'customer']
+    list_per_page = 10
+
+@admin.register(models.OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ['order', 'product', 'product_description', 'quantity', 'unit_price']
+    list_select_related = ['order', 'product']
+    list_per_page = 10
+
+    @admin.display(ordering='product__description')
+    def product_description(self, orderitem):
+        return orderitem.product.description
