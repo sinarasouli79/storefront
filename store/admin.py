@@ -1,6 +1,6 @@
 from django.contrib import admin
 from . import models
-
+from django.db.models import Count
 # Register your models here.
 
 
@@ -25,9 +25,18 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(models.Collection)
 class CollectionAdmin(admin.ModelAdmin):
-    list_display = ['title']
+    list_display = ['title', 'products_count']
     ordering = ['title']
     list_per_page = 10
+
+    @admin.display(ordering='products_count')
+    def products_count(self, collection):
+        return collection.products_count
+    
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(products_count=Count('product'))
+
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
