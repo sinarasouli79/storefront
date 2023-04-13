@@ -26,12 +26,29 @@ class CustomerAdmin(admin.ModelAdmin):
         return super().get_queryset(request).annotate(orders_count=Count('order'))
 
 
+
+class inventory_status(admin.SimpleListFilter):
+    title = 'inventory'
+    parameter_name = 'inventory'
+    less_than_ten = '<10'
+    def lookups(self, request, model_admin):
+        return [(self.less_than_ten, 'low')]
+    
+    def queryset(self, request, queryset):
+        if self.value() == self.less_than_ten:
+            return queryset.filter(inventory__lt=10)
+    
+
+
+
+
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['title', 'unit_price', 'inventory_status', 'collection']
+    list_display = ['title', 'unit_price', 'inventory', 'inventory_status', 'collection']
     list_editable = ['unit_price']
-    ordering = ['title', 'unit_price']
+    list_filter = ['collection', inventory_status]
     list_per_page = 10
+    ordering = ['title', 'unit_price']
 
     @admin.display(ordering='inventory')
     def inventory_status(self, product):
