@@ -44,12 +44,16 @@ class inventory_status(admin.SimpleListFilter):
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
     actions = ['clear_inventory']
+    autocomplete_fields = ['collection']
     list_display = ['id', 'title', 'unit_price',
                     'inventory_status', 'collection', 'last_update']
     list_editable = ['unit_price']
     list_filter = ['collection', 'last_update', inventory_status]
     list_per_page = 10
     ordering = ['title', 'unit_price']
+    prepopulated_fields = {'slug': ['title',]}
+    readonly_fields = ['id', 'last_update']
+    search_fields = ['title__istartswith']
 
     @admin.display(ordering='inventory')
     def inventory_status(self, product):
@@ -64,9 +68,11 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(models.Collection)
 class CollectionAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['featured_product']
     list_display = ['title', 'products_count']
-    ordering = ['title']
     list_per_page = 10
+    ordering = ['title']
+    search_fields = ['title__istartswith']
 
     @admin.display(ordering='products_count')
     def products_count(self, collection):
@@ -81,12 +87,16 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['customer']
     list_display = ['payment_status', 'placed_at', 'customer']
     list_per_page = 10
+    search_fields = ['customer__first_name__istartswith',
+                     'customer__last_name__istartswith']
 
 
 @admin.register(models.OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['order', 'product']
     list_display = ['order', 'product',
                     'product_description', 'quantity', 'unit_price']
     list_select_related = ['order', 'product']
