@@ -1,16 +1,22 @@
 from django.contrib import admin, messages
+from django.contrib.contenttypes.admin import GenericTabularInline
 from django.db.models import Count
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.http import urlencode
 
 from . import models
-
+from tags.models import TaggedItem
 # Register your models here.
 
-
+class OrderInline(admin.TabularInline):
+    extra = 0
+    model = models.Order
+    fields = ['payment_status', 'placed_at']
+    readonly_fields = ['placed_at']
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
+    inlines = [OrderInline]
     list_display = ['first_name', 'last_name', 'membership', 'orders_count']
     list_editable = ['membership']
     list_per_page = 10
@@ -40,11 +46,15 @@ class inventory_status(admin.SimpleListFilter):
         if self.value() == self.less_than_ten:
             return queryset.filter(inventory__lt=10)
 
+class TagInline(GenericTabularInline):
+    extra = 0 
+    model = TaggedItem
 
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
     actions = ['clear_inventory']
     autocomplete_fields = ['collection']
+    inlines = [TagInline]
     list_display = ['id', 'title', 'unit_price',
                     'inventory_status', 'collection', 'last_update']
     list_editable = ['unit_price']
@@ -84,10 +94,15 @@ class CollectionAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(products_count=Count('product'))
 
+class OrderItemInline(admin.TabularInline):
+    autocomplete_fields = ['product']
+    extra = 0
+    model = models.OrderItem
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
     autocomplete_fields = ['customer']
+    inlines = [OrderItemInline]
     list_display = ['payment_status', 'placed_at', 'customer']
     list_per_page = 10
     search_fields = ['customer__first_name__istartswith',
