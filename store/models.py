@@ -1,6 +1,8 @@
-from django.db import models
-from tags.models import TaggedItem
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import MinValueValidator
+from django.db import models
+
+from tags.models import TaggedItem
 
 
 class TaggedItemManager(models.Manager):
@@ -33,8 +35,8 @@ class Product(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField()
     description = models.TextField()
-    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
-    inventory = models.IntegerField()
+    unit_price = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(1)])
+    inventory = models.IntegerField(validators=[MinValueValidator(0)])
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
     promotions = models.ManyToManyField(Promotion, blank=True)
@@ -87,7 +89,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.PositiveSmallIntegerField()
-    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
+    unit_price = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(1)])
 
 
 class Address(models.Model):
