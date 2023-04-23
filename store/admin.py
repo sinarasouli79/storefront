@@ -1,12 +1,10 @@
 from django.contrib import admin, messages
-from django.contrib.contenttypes.admin import GenericTabularInline
 from django.db.models import Count
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.http import urlencode
 
 from . import models
-from tags.models import TaggedItem
 # Register your models here.
 
 class OrderInline(admin.TabularInline):
@@ -46,15 +44,12 @@ class inventory_status(admin.SimpleListFilter):
         if self.value() == self.less_than_ten:
             return queryset.filter(inventory__lt=10)
 
-class TagInline(GenericTabularInline):
-    extra = 0 
-    model = TaggedItem
+
 
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
     actions = ['clear_inventory']
     autocomplete_fields = ['collection']
-    inlines = [TagInline]
     list_display = ['id', 'title', 'unit_price',
                     'inventory_status', 'collection', 'last_update']
     list_editable = ['unit_price']
@@ -114,7 +109,7 @@ class OrderItemAdmin(admin.ModelAdmin):
     autocomplete_fields = ['order', 'product']
     list_display = ['order', 'product',
                     'product_description', 'quantity', 'unit_price']
-    list_select_related = ['order', 'product']
+    list_select_related = ['order', 'product', 'order__customer']
     list_per_page = 10
 
     @admin.display(ordering='product__description')
