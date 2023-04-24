@@ -5,10 +5,13 @@ from rest_framework import serializers
 from store.models import Collection, Product
 
 
-class CollectonSerializer(serializers.ModelSerializer):
+class CollectionSerializer(serializers.ModelSerializer):
+    products_count = serializers.IntegerField(
+        read_only=True, source='product_set.count')
+
     class Meta:
         model = Collection
-        fields = ['id', 'title',]
+        fields = ['id', 'title', 'products_count']
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -18,17 +21,7 @@ class ProductSerializer(serializers.ModelSerializer):
     def calculate_tax(self, product):
         return product.unit_price * Decimal(0.2)
 
-
-    # def create(self, validated_data):
-    #     product = Product.objects.create(**validated_data)
-    #     product.other = '?'
-    #     product.save()
-    #     return product
-
-    # def update(self, instance, validated_data):
-    #     instance.unit_price = validated_data['unit_price']
-    #     instance.save()
-    #     return instance
     class Meta:
         model = Product
-        fields = ['id', 'title', 'description','unit_price', 'inventory', 'price_with_tax', 'collection']
+        fields = ['id', 'title', 'description', 'unit_price',
+                  'inventory', 'price_with_tax', 'collection']
