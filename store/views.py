@@ -13,7 +13,8 @@ from .serializers import ProductSerializer
 def product_list(request):
     if request.method == 'GET':
         queryset = Product.objects.select_related('collection').all()
-        serializer = ProductSerializer(queryset, many=True, context={'request':request})
+        serializer = ProductSerializer(
+            queryset, many=True, context={'request': request})
         return Response(serializer.data)
     elif request.method == 'POST':
         serializer = ProductSerializer(data=request.data)
@@ -22,7 +23,7 @@ def product_list(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT', 'DELETE'])
 def product_detail(request, id):
     product = get_object_or_404(Product, pk=id)
     if request.method == 'GET':
@@ -34,6 +35,14 @@ def product_detail(request, id):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+    elif request.method == 'DELETE':
+        if product.orderitem_set.exists():
+            return Response({'error': 'There are some order items associated with this product that you should delete first.'},
+                            status.HTTP_405_METHOD_NOT_ALLOWED)
+        product.delete()
+        return Response(status.HTTP_204_NO_CONTENT)
+
 
 @api_view()
 def collection_detail(request, pk):
