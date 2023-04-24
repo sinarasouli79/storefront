@@ -18,12 +18,17 @@ class ProductSerializer(serializers.ModelSerializer):
     def calculate_tax(self, product):
         return product.unit_price * Decimal(0.2)
 
-    def validate(self, attrs):
-        print("here****************")
-        if not attrs['title'].__contains__('sina'):
-            raise serializers.ValidationError('title should contain sina')
-        return attrs
 
+    # def create(self, validated_data):
+    #     product = Product.objects.create(**validated_data)
+    #     product.other = '?'
+    #     product.save()
+    #     return product
+
+    # def update(self, instance, validated_data):
+    #     instance.unit_price = validated_data['unit_price']
+    #     instance.save()
+    #     return instance
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price', 'price_with_tax', 'collection']
+        fields = ['id', 'title', 'description','unit_price', 'inventory', 'price_with_tax', 'collection']
