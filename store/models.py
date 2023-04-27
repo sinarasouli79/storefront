@@ -30,12 +30,14 @@ class Collection(models.Model):
     def __str__(self) -> str:
         return self.title
 
+
 class Product(models.Model):
     objects = TaggedItemManager()
     title = models.CharField(max_length=255)
     slug = models.SlugField()
     description = models.TextField(blank=True)
-    unit_price = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(1)])
+    unit_price = models.DecimalField(
+        max_digits=6, decimal_places=2, validators=[MinValueValidator(1)])
     inventory = models.IntegerField(validators=[MinValueValidator(0)])
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
@@ -46,6 +48,7 @@ class Product(models.Model):
 
     class Meta:
         ordering = ['title']
+
 
 class Customer(models.Model):
     MEMBERSHIP_BRONZE = 'B'
@@ -65,9 +68,10 @@ class Customer(models.Model):
     membership = models.CharField(
         max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
 
-
     def __str__(self) -> str:
         return f'{self.first_name} {self.last_name}'
+
+
 class Order(models.Model):
     PAYMENT_STATUS_PENDING = 'P'
     PAYMENT_STATUS_COMPLETE = 'C'
@@ -85,11 +89,14 @@ class Order(models.Model):
 
     def __str__(self) -> str:
         return f'{self.customer}-{self.placed_at}-{self.payment_status}'
+
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.PositiveSmallIntegerField()
-    unit_price = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(1)])
+    unit_price = models.DecimalField(
+        max_digits=6, decimal_places=2, validators=[MinValueValidator(1)])
 
 
 class Address(models.Model):
@@ -109,3 +116,8 @@ class CartItem(models.Model):
     quantity = models.PositiveSmallIntegerField()
 
 
+class Reviews(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    date = models.DateTimeField(auto_now_add=True)
