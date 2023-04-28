@@ -1,19 +1,21 @@
-from .serializers import (CollectionSerializer, ProductSerializer,
-                          ReviewSerializer)
-from .models import Collection, Product, Review
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import status
+from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .filters import ProductFilter
+from .models import Collection, Product, Review
+from .serializers import (CollectionSerializer, ProductSerializer,
+                          ReviewSerializer)
 
 
 # Create your views here.
 class ProductViewSet(ModelViewSet):
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = ProductFilter
     queryset = Product.objects.all()
+    search_fields = ['title', 'description']
     serializer_class = ProductSerializer
 
     def perform_destroy(self, instance):
