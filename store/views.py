@@ -8,8 +8,14 @@ from .serializers import CollectionSerializer, ProductSerializer, ReviewSerializ
 
 # Create your views here.
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        collectoin_id = self.request.query_params.get('collection_id')
+        if collectoin_id:
+            queryset = queryset.filter(collection_id=collectoin_id)
+        return queryset
 
     def perform_destroy(self, instance):
         if instance.orderitem_set.exists():
