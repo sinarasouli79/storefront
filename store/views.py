@@ -6,17 +6,21 @@ from rest_framework.viewsets import ModelViewSet
 
 from .filters import ProductFilter
 from .models import Collection, Product, Review
+from .pagination import DefaultPagination
 from .serializers import (CollectionSerializer, ProductSerializer,
                           ReviewSerializer)
 
 
 # Create your views here.
+
+
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter
     ordering_fields = ['title', 'unit_price']
+    pagination_class = DefaultPagination
     search_fields = ['title', 'description']
 
     def perform_destroy(self, instance):
