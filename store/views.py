@@ -2,9 +2,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Collection, Product, Reviews
-from .serializers import (CollectionSerializer, ProductSerializer,
-                          ReviewSerializer)
+from .models import Collection, Product, Review
+from .serializers import CollectionSerializer, ProductSerializer, ReviewSerializer
 
 
 # Create your views here.
@@ -31,5 +30,11 @@ class CollectionViewSet(ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
-    queryset = Reviews.objects.all()
     serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        return Review.objects.filter(product=self.kwargs['product_pk'])
+
+    def get_serializer_context(self):
+
+        return {'product': self.kwargs['product_pk']}
