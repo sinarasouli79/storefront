@@ -1,6 +1,6 @@
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import status
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -12,11 +12,12 @@ from .serializers import (CollectionSerializer, ProductSerializer,
 
 # Create your views here.
 class ProductViewSet(ModelViewSet):
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_class = ProductFilter
     queryset = Product.objects.all()
-    search_fields = ['title', 'description']
     serializer_class = ProductSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = ProductFilter
+    ordering_fields = ['title', 'unit_price']
+    search_fields = ['title', 'description']
 
     def perform_destroy(self, instance):
         if instance.orderitem_set.exists():
