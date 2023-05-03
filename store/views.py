@@ -60,6 +60,7 @@ class CartViewSet(mixins.CreateModelMixin,
 
 class CartItemViewSet(ModelViewSet):
 
+    http_method_names = ['post', 'get', 'patch', 'delete']
     def get_queryset(self):
         return CartItem.objects.select_related('product').filter(cart_id=self.kwargs['cart_pk'])
 
@@ -68,6 +69,9 @@ class CartItemViewSet(ModelViewSet):
             return serializers.CartItemSerializer
         elif self.request.method == 'POST':
             return serializers.AddCartItemSerializer
+        
+        elif self.request.method == 'PATCH':
+            return serializers.UpdateCartItemSerializer
 
 
     def get_serializer_context(self):
