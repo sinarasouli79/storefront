@@ -1,22 +1,19 @@
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from rest_framework import status
+from rest_framework import mixins, status
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from .filters import ProductFilter
-from .models import Collection, Product, Review
+from .models import Cart, Collection, Product, Review
 from .pagination import DefaultPagination
-from .serializers import (CollectionSerializer, ProductSerializer,
-                          ReviewSerializer)
-
-
+from . import serializers
 # Create your views here.
 
 
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
-    serializer_class = ProductSerializer
+    serializer_class = serializers.ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter
     ordering_fields = ['title', 'unit_price']
@@ -32,7 +29,7 @@ class ProductViewSet(ModelViewSet):
 
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.prefetch_related('product_set').all()
-    serializer_class = CollectionSerializer
+    serializer_class = serializers.CollectionSerializer
 
     def perform_destroy(self, instance):
         if instance.product_set.exists():
@@ -42,7 +39,7 @@ class CollectionViewSet(ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
-    serializer_class = ReviewSerializer
+    serializer_class = serializers.ReviewSerializer
 
     def get_queryset(self):
         return Review.objects.filter(product=self.kwargs['product_pk'])
@@ -50,3 +47,8 @@ class ReviewViewSet(ModelViewSet):
     def get_serializer_context(self):
 
         return {'product': self.kwargs['product_pk']}
+
+
+class CartViewSet(mixins.CreateModelMixin, GenericViewSet):
+    queryset = Cart.objects.all()
+    serializer_class = serializers.CartSerializer
