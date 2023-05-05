@@ -102,7 +102,10 @@ class Order(models.Model):
     def __str__(self) -> str:
         return f'{self.customer}-{self.placed_at}-{self.payment_status}'
 
-
+    class Meta:
+        permissions = [
+            ('cancel-order', 'Can cancel order'),
+        ]
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
