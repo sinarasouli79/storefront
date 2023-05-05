@@ -7,19 +7,24 @@ from django.utils.http import urlencode
 from . import models
 # Register your models here.
 
+
 class OrderInline(admin.TabularInline):
     extra = 0
     model = models.Order
     fields = ['payment_status', 'placed_at']
     readonly_fields = ['placed_at']
+
+
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['user']
     inlines = [OrderInline]
     list_display = ['first_name', 'last_name', 'membership', 'orders_count']
     list_editable = ['membership']
     list_per_page = 10
-    search_fields = ['first_name__istartswith', 'last_name__istartswith']
-    ordering = ['first_name', 'last_name']
+    list_select_related = ['user',]
+    search_fields = ['user__first_name__istartswith', 'user__last_name__istartswith']
+    ordering = ['user__first_name', 'user__last_name']
 
     @admin.display(ordering='orders_count')
     def orders_count(self, customer):
@@ -43,7 +48,6 @@ class inventory_status(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() == self.less_than_ten:
             return queryset.filter(inventory__lt=10)
-
 
 
 @admin.register(models.Product)
@@ -89,10 +93,12 @@ class CollectionAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(products_count=Count('product'))
 
+
 class OrderItemInline(admin.TabularInline):
     autocomplete_fields = ['product']
     extra = 0
     model = models.OrderItem
+
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
