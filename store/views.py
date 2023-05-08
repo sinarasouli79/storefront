@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from .filters import ProductFilter
-from .models import Cart, CartItem, Collection, Product, Review
+from .models import Cart, CartItem, Collection, Customer, Product, Review
 from .pagination import DefaultPagination
 from . import serializers
 # Create your views here.
@@ -76,3 +76,10 @@ class CartItemViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'cart_pk':self.kwargs['cart_pk']}
+    
+
+
+class CustomerViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, GenericViewSet):
+
+    queryset = Customer.objects.all()
+    serializer_class = serializers.CustomerSrializer
