@@ -3,7 +3,7 @@ from rest_framework import mixins, status
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
-
+from rest_framework.decorators import action
 from .filters import ProductFilter
 from .models import Cart, CartItem, Collection, Customer, Product, Review
 from .pagination import DefaultPagination
@@ -61,6 +61,7 @@ class CartViewSet(mixins.CreateModelMixin,
 class CartItemViewSet(ModelViewSet):
 
     http_method_names = ['post', 'get', 'patch', 'delete']
+
     def get_queryset(self):
         return CartItem.objects.select_related('product').filter(cart_id=self.kwargs['cart_pk'])
 
@@ -69,17 +70,29 @@ class CartItemViewSet(ModelViewSet):
             return serializers.CartItemSerializer
         elif self.request.method == 'POST':
             return serializers.AddCartItemSerializer
-        
+
         elif self.request.method == 'PATCH':
             return serializers.UpdateCartItemSerializer
 
-
     def get_serializer_context(self):
-        return {'cart_pk':self.kwargs['cart_pk']}
-    
+        return {'cart_pk': self.kwargs['cart_pk']}
 
 
 class CustomerViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, GenericViewSet):
 
     queryset = Customer.objects.all()
     serializer_class = serializers.CustomerSrializer
+
+    @action(detail=False, methods=['GET', 'PUT'])
+    def me(self, request):
+        (customer, created) = Customer.objects.get_or_create(pk=request.user.pk)
+        if request.method == 'GET':
+            serializer = serializers.CustomerSrializer(customer)
+            return Response(serializer.data)
+
+        elif request.method == 'PUT':
+            serializer = serializers.CustomerSrializer(
+                customer, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)

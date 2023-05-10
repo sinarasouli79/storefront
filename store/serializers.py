@@ -107,7 +107,7 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 class CustomerSrializer(serializers.ModelSerializer):
-    user_id = serializers.IntegerField()
+    user_id = serializers.IntegerField(read_only=True)
     class Meta:
         model = Customer
         fields = ['id', 'user_id', 'membership', 'birth_date', 'phone']
