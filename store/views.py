@@ -1,14 +1,17 @@
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import mixins, status
+from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+
+from . import serializers
 from .filters import ProductFilter
 from .models import Cart, CartItem, Collection, Customer, Product, Review
 from .pagination import DefaultPagination
-from . import serializers
+from .permissions import IsAdminOrReadOnly
+
 # Create your views here.
 
 
@@ -19,6 +22,7 @@ class ProductViewSet(ModelViewSet):
     filterset_class = ProductFilter
     ordering_fields = ['title', 'unit_price']
     pagination_class = DefaultPagination
+    permission_classes = [IsAdminOrReadOnly]
     search_fields = ['title', 'description']
 
     def perform_destroy(self, instance):
@@ -30,6 +34,7 @@ class ProductViewSet(ModelViewSet):
 
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.prefetch_related('product_set').all()
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = serializers.CollectionSerializer
 
     def perform_destroy(self, instance):
@@ -83,9 +88,9 @@ class CustomerViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins
 
     queryset = Customer.objects.all()
     serializer_class = serializers.CustomerSrializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
-    @action(detail=False, methods=['GET', 'PUT'])
+    @action(detail=False, methods=['GET', 'PUT'], permission_classes=[IsAuthenticated])
     def me(self, request):
         (customer, created) = Customer.objects.get_or_create(pk=request.user.pk)
         if request.method == 'GET':
