@@ -8,7 +8,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from . import serializers
 from .filters import ProductFilter
-from .models import Cart, CartItem, Collection, Customer, Product, Review
+from .models import Cart, CartItem, Collection, Customer, Order, Product, Review
 from .pagination import DefaultPagination
 from .permissions import FullDjangoModelPermissions, IsAdminOrReadOnly, ViewHistoryPermission
 
@@ -107,3 +107,8 @@ class CustomerViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+
+
+class OrderViewSet(ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = serializers.OrderSrializer
