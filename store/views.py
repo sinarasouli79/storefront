@@ -2,7 +2,7 @@ from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
@@ -10,7 +10,7 @@ from . import serializers
 from .filters import ProductFilter
 from .models import Cart, CartItem, Collection, Customer, Product, Review
 from .pagination import DefaultPagination
-from .permissions import IsAdminOrReadOnly
+from .permissions import FullDjangoModelPermissions, IsAdminOrReadOnly
 
 # Create your views here.
 
@@ -84,11 +84,11 @@ class CartItemViewSet(ModelViewSet):
         return {'cart_pk': self.kwargs['cart_pk']}
 
 
-class CustomerViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, GenericViewSet):
+class CustomerViewSet(ModelViewSet):
 
     queryset = Customer.objects.all()
     serializer_class = serializers.CustomerSrializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [FullDjangoModelPermissions]
 
     @action(detail=False, methods=['GET', 'PUT'], permission_classes=[IsAuthenticated])
     def me(self, request):
