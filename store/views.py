@@ -4,6 +4,7 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .filters import ProductFilter
 from .models import Cart, CartItem, Collection, Customer, Product, Review
 from .pagination import DefaultPagination
@@ -82,6 +83,7 @@ class CustomerViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins
 
     queryset = Customer.objects.all()
     serializer_class = serializers.CustomerSrializer
+    permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['GET', 'PUT'])
     def me(self, request):
