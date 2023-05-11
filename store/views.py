@@ -3,7 +3,7 @@ from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
@@ -112,6 +112,13 @@ class CustomerViewSet(ModelViewSet):
 
 class OrderViewSet(ModelViewSet):
 
+    http_method_names = ['get', 'patch', 'delete', 'options', 'head']
+
+    def get_permissions(self):
+        if self.request.method in ['PATCH', 'DELETE']:
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
+
     def create(self, request, *args, **kwargs):
         serializer = serializers.AddOrderSerializer(
             data=request.data, context={'user_id': self.request.user.id})
@@ -121,15 +128,13 @@ class OrderViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return serializers.OrderSrializer
-        elif self.request.method == 'POST':
+        if self.request.method == 'POST':
             return serializers.AddOrderSerializer
+        return serializers.OrderSrializer
 
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
             return Order.objects.all()
-
         (customer_id, created) = Customer.objects.get_or_create(user_id=user.id)
         return Order.objects.filter(customer_id=customer_id)
