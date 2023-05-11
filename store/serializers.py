@@ -1,11 +1,11 @@
-from dataclasses import field
 from decimal import Decimal
-from pyexpat import model
 
 from django.db import transaction
 from rest_framework import serializers
 
-from .models import Cart, CartItem, Collection, Customer, Order, OrderItem, Product, Review
+from .models import (Cart, CartItem, Collection, Customer, Order, OrderItem,
+                     Product, Review)
+from .signals import order_created
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -162,7 +162,11 @@ class AddOrderSerializer(serializers.Serializer):
             ]
 
             OrderItem.objects.bulk_create(orderitems)
+            
             Cart.objects.filter(pk=cart_id).delete()
+            
+            order_created.send_robust(self.__class__, order=order)
+            
             return order
 
 
