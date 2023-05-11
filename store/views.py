@@ -1,3 +1,4 @@
+from multiprocessing import context
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import mixins, status
 from rest_framework.decorators import action
@@ -111,6 +112,14 @@ class CustomerViewSet(ModelViewSet):
 
 class OrderViewSet(ModelViewSet):
 
+    def create(self, request, *args, **kwargs):
+        serializer = serializers.AddOrderSerializer(
+            data=request.data, context={'user_id': self.request.user.id})
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save()
+        serializer = serializers.OrderSrializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return serializers.OrderSrializer
@@ -124,6 +133,3 @@ class OrderViewSet(ModelViewSet):
 
         (customer_id, created) = Customer.objects.get_or_create(user_id=user.id)
         return Order.objects.filter(customer_id=customer_id)
-
-    def get_serializer_context(self):
-        return {'user_id': self.request.user.id}
