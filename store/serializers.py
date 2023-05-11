@@ -1,4 +1,6 @@
+from dataclasses import field
 from decimal import Decimal
+from pyexpat import model
 
 from django.db import transaction
 from rest_framework import serializers
@@ -138,10 +140,12 @@ class AddOrderSerializer(serializers.Serializer):
 
     def validate_cart_id(self, cart_id):
         if not Cart.objects.filter(pk=cart_id).exists():
-            raise serializers.ValidationError('not cart with given id was found')
+            raise serializers.ValidationError(
+                'not cart with given id was found')
         if not CartItem.objects.filter(cart_id=cart_id).exists():
             raise serializers.ValidationError('the cart is empty')
         return cart_id
+
     def save(self, **kwargs):
         with transaction.atomic():
             user_id = self.context['user_id']
@@ -160,3 +164,10 @@ class AddOrderSerializer(serializers.Serializer):
             OrderItem.objects.bulk_create(orderitems)
             Cart.objects.filter(pk=cart_id).delete()
             return order
+
+
+class UpdateOrderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = ['payment_status']
