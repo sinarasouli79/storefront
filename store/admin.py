@@ -1,11 +1,30 @@
+from typing import Any
 from django.contrib import admin, messages
 from django.db.models import Count
+from django.db.models.query import QuerySet
+from django.http.request import HttpRequest
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.http import urlencode
 
 from . import models
 # Register your models here.
+
+
+@admin.register(models.CartItem)
+class CarItemAdmin(admin.ModelAdmin):
+    list_display = ['cart', 'product', 'quantity']
+
+
+@admin.register(models.Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ['id', 'created_at', 'cartitems_count']
+
+    def cartitems_count(self, cart):
+        return cart.cartitems_count
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
+        return super().get_queryset(request).annotate(cartitems_count=Count('cartitem'))
 
 
 class OrderInline(admin.TabularInline):
@@ -23,7 +42,8 @@ class CustomerAdmin(admin.ModelAdmin):
     list_editable = ['membership']
     list_per_page = 10
     list_select_related = ['user',]
-    search_fields = ['user__first_name__istartswith', 'user__last_name__istartswith']
+    search_fields = ['user__first_name__istartswith',
+                     'user__last_name__istartswith']
     ordering = ['user__first_name', 'user__last_name']
 
     @admin.display(ordering='orders_count')
@@ -104,10 +124,17 @@ class OrderItemInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     autocomplete_fields = ['customer']
     inlines = [OrderItemInline]
-    list_display = ['payment_status', 'placed_at', 'customer']
+    list_display = ['payment_status', 'placed_at',
+                    'customer', 'orderitems_count']
     list_per_page = 10
     search_fields = ['customer__first_name__istartswith',
                      'customer__last_name__istartswith']
+
+    def orderitems_count(self, order):
+        return order.orderitems_count
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
+        return super().get_queryset(request).annotate(orderitems_count=Count('orderitem'))
 
 
 @admin.register(models.OrderItem)
