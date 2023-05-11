@@ -5,7 +5,6 @@ from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
-from store import permissions
 
 from tags.models import TaggedItem
 
