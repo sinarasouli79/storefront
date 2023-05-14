@@ -12,6 +12,7 @@ django-filter = "*"
 djangorestframework-simplejwt = "*"
 djoser = "*"
 pillow = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 autopep8 = "*"
