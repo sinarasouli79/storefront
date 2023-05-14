@@ -15,7 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-import debug_toolbar
+from django.conf import settings
+from django.conf.urls.static import static
 
 admin.site.site_header = 'Storefront admin'
 admin.site.index_title = 'admin'
@@ -32,3 +33,6 @@ urlpatterns = [
     path('playground/', include('playground.urls')),
     path('store/', include('store.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
