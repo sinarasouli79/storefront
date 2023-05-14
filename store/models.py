@@ -11,14 +11,13 @@ from tags.models import TaggedItem
 
 class TaggedItemManager(models.Manager):
     def get_tags_for(self, object_type, object_id):
-
         content_type = ContentType.objects.get_for_model(object_type)
-        return TaggedItem.objects\
-            .select_related('tag')\
+        return TaggedItem.objects \
+            .select_related('tag') \
             .filter(
-                content_type=content_type,
-                object_id=object_id
-            )
+            content_type=content_type,
+            object_id=object_id
+        )
 
 
 class Promotion(models.Model):
@@ -54,6 +53,10 @@ class Product(models.Model):
         ordering = ['title']
 
 
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='store/images')
+    height = models.CharField()
 class Customer(models.Model):
     MEMBERSHIP_BRONZE = 'B'
     MEMBERSHIP_SILVER = 'S'
