@@ -4,7 +4,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from .models import (Cart, CartItem, Collection, Customer, Order, OrderItem,
-                     Product, Review)
+                     Product, Review, ProductImage)
 from .signals import order_created
 
 
@@ -33,7 +33,7 @@ class ProductSerializer(serializers.ModelSerializer):
 class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price',]
+        fields = ['id', 'title', 'unit_price', ]
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -48,7 +48,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-
     product = SimpleProductSerializer()
     total_price = serializers.SerializerMethodField()
 
@@ -118,7 +117,6 @@ class CustomerSrializer(serializers.ModelSerializer):
 
 
 class OrderItemSerialzier(serializers.ModelSerializer):
-
     product = SimpleProductSerializer()
 
     class Meta:
@@ -162,16 +160,26 @@ class AddOrderSerializer(serializers.Serializer):
             ]
 
             OrderItem.objects.bulk_create(orderitems)
-            
+
             Cart.objects.filter(pk=cart_id).delete()
-            
+
             order_created.send_robust(self.__class__, order=order)
-            
+
             return order
 
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Order
         fields = ['payment_status']
+
+
+class ProductImageSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        validated_data['product_id'] = self.context['product_id']
+        return super().create(validated_data)
+
+    class Meta:
+        model = ProductImage
+        fields = ['image']

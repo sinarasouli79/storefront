@@ -1,4 +1,3 @@
-from multiprocessing import context
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import mixins, status
 from rest_framework.decorators import action
@@ -9,9 +8,10 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from . import serializers
 from .filters import ProductFilter
-from .models import Cart, CartItem, Collection, Customer, Order, Product, Review
+from .models import Cart, CartItem, Collection, Customer, Order, Product, Review, ProductImage
 from .pagination import DefaultPagination
 from .permissions import FullDjangoModelPermissions, IsAdminOrReadOnly, ViewHistoryPermission
+
 
 # Create your views here.
 
@@ -28,8 +28,9 @@ class ProductViewSet(ModelViewSet):
 
     def perform_destroy(self, instance):
         if instance.orderitem_set.exists():
-            return Response({'error': 'There are some order items associated with this product that you should delete first.'},
-                            status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response(
+                {'error': 'There are some order items associated with this product that you should delete first.'},
+                status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().perform_destroy(instance)
 
 
@@ -40,8 +41,9 @@ class CollectionViewSet(ModelViewSet):
 
     def perform_destroy(self, instance):
         if instance.product_set.exists():
-            return Response({'error': "There are some product associated with this collection that you should delete first."},
-                            status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response(
+                {'error': "There are some product associated with this collection that you should delete first."},
+                status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().perform_destroy(instance)
 
 
@@ -52,7 +54,6 @@ class ReviewViewSet(ModelViewSet):
         return Review.objects.filter(product=self.kwargs['product_pk'])
 
     def get_serializer_context(self):
-
         return {'product': self.kwargs['product_pk']}
 
 
@@ -60,13 +61,11 @@ class CartViewSet(mixins.CreateModelMixin,
                   mixins.RetrieveModelMixin,
                   mixins.DestroyModelMixin,
                   GenericViewSet):
-
     queryset = Cart.objects.prefetch_related('cartitem_set__product').all()
     serializer_class = serializers.CartSerializer
 
 
 class CartItemViewSet(ModelViewSet):
-
     http_method_names = ['post', 'get', 'patch', 'delete']
 
     def get_queryset(self):
@@ -86,7 +85,6 @@ class CartItemViewSet(ModelViewSet):
 
 
 class CustomerViewSet(ModelViewSet):
-
     queryset = Customer.objects.all()
     serializer_class = serializers.CustomerSrializer
     permission_classes = [FullDjangoModelPermissions]
@@ -111,7 +109,6 @@ class CustomerViewSet(ModelViewSet):
 
 
 class OrderViewSet(ModelViewSet):
-
     http_method_names = ['get', 'post', 'patch', 'delete', 'options', 'head']
 
     def get_permissions(self):
@@ -140,3 +137,13 @@ class OrderViewSet(ModelViewSet):
             return Order.objects.all()
         customer_id = Customer.objects.get(user_id=user.id)
         return Order.objects.filter(customer_id=customer_id)
+
+
+class ProductImageViewSet(ModelViewSet):
+    serializer_class = serializers.ProductImageSerializer
+
+    def get_queryset(self):
+        return ProductImage.objects.filter(product_id=self.kwargs['product_pk'])
+
+    def get_serializer_context(self):
+        return {'product_id': self.kwargs['product_pk']}
