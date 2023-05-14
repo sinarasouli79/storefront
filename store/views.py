@@ -17,7 +17,7 @@ from .permissions import FullDjangoModelPermissions, IsAdminOrReadOnly, ViewHist
 
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.prefetch_related('productimage_set').all()
     serializer_class = serializers.ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter

@@ -8,18 +8,22 @@ from .models import (Cart, CartItem, Collection, Customer, Order, OrderItem,
 from .signals import order_created
 
 
-class CollectionSerializer(serializers.ModelSerializer):
-    products_count = serializers.IntegerField(
-        read_only=True, source='product_set.count')
+class ProductImageSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        validated_data['product_id'] = self.context['product_id']
+        return super().create(validated_data)
 
     class Meta:
-        model = Collection
-        fields = ['id', 'title', 'products_count']
+        model = ProductImage
+        fields = ['id', 'image']
 
 
 class ProductSerializer(serializers.ModelSerializer):
     price_with_tax = serializers.SerializerMethodField(
         method_name='calculate_tax')
+
+    productimage_set = ProductImageSerializer(many=True, read_only=True)
 
     def calculate_tax(self, product):
         return product.unit_price * Decimal(0.2)
@@ -27,7 +31,16 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'title', 'description', 'unit_price',
-                  'inventory', 'price_with_tax', 'collection']
+                  'inventory', 'price_with_tax', 'collection', 'productimage_set']
+
+
+class CollectionSerializer(serializers.ModelSerializer):
+    products_count = serializers.IntegerField(
+        read_only=True, source='product_set.count')
+
+    class Meta:
+        model = Collection
+        fields = ['id', 'title', 'products_count']
 
 
 class SimpleProductSerializer(serializers.ModelSerializer):
@@ -172,14 +185,3 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['payment_status']
-
-
-class ProductImageSerializer(serializers.ModelSerializer):
-
-    def create(self, validated_data):
-        validated_data['product_id'] = self.context['product_id']
-        return super().create(validated_data)
-
-    class Meta:
-        model = ProductImage
-        fields = ['image']
