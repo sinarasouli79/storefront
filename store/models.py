@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 
+from store.validators import file_size_validator
 from tags.models import TaggedItem
 
 
@@ -55,7 +56,7 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='store/images')
+    image = models.ImageField(upload_to='store/images', validators=[file_size_validator])
 
 
 class Customer(models.Model):

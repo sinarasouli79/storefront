@@ -86,7 +86,7 @@ class CartItemViewSet(ModelViewSet):
 
 class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()
-    serializer_class = serializers.CustomerSrializer
+    serializer_class = serializers.CustomerSerializer
     permission_classes = [FullDjangoModelPermissions]
 
     @action(detail=True, permission_classes=[ViewHistoryPermission])
@@ -97,11 +97,11 @@ class CustomerViewSet(ModelViewSet):
     def me(self, request):
         customer = Customer.objects.get(pk=request.user.pk)
         if request.method == 'GET':
-            serializer = serializers.CustomerSrializer(customer)
+            serializer = serializers.CustomerSerializer(customer)
             return Response(serializer.data)
 
         elif request.method == 'PUT':
-            serializer = serializers.CustomerSrializer(
+            serializer = serializers.CustomerSerializer(
                 customer, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -121,7 +121,7 @@ class OrderViewSet(ModelViewSet):
             data=request.data, context={'user_id': self.request.user.id})
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
-        serializer = serializers.OrderSrializer(order)
+        serializer = serializers.OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_serializer_class(self):
@@ -129,7 +129,7 @@ class OrderViewSet(ModelViewSet):
             return serializers.AddOrderSerializer
         elif self.request.method == 'PATCH':
             return serializers.UpdateOrderSerializer
-        return serializers.OrderSrializer
+        return serializers.OrderSerializer
 
     def get_queryset(self):
         user = self.request.user

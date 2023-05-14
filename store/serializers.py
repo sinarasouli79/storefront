@@ -77,7 +77,7 @@ class AddCartItemSerializer(serializers.ModelSerializer):
 
     def validate_product_id(self, product_id):
         if not Product.objects.filter(pk=product_id).exists():
-            raise serializers.ValidationError("product doen't exist")
+            raise serializers.ValidationError("product doesn't exist")
         return product_id
 
     def save(self, **kwargs):
@@ -121,7 +121,7 @@ class CartSerializer(serializers.ModelSerializer):
         fields = ['id', 'items', 'total_price']
 
 
-class CustomerSrializer(serializers.ModelSerializer):
+class CustomerSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -129,7 +129,7 @@ class CustomerSrializer(serializers.ModelSerializer):
         fields = ['id', 'user_id', 'membership', 'birth_date', 'phone']
 
 
-class OrderItemSerialzier(serializers.ModelSerializer):
+class OrderItemSerializer(serializers.ModelSerializer):
     product = SimpleProductSerializer()
 
     class Meta:
@@ -137,8 +137,8 @@ class OrderItemSerialzier(serializers.ModelSerializer):
         fields = ['id', 'product', 'unit_price', 'quantity']
 
 
-class OrderSrializer(serializers.ModelSerializer):
-    orderitem_set = OrderItemSerialzier(many=True)
+class OrderSerializer(serializers.ModelSerializer):
+    orderitem_set = OrderItemSerializer(many=True)
 
     class Meta:
         model = Order
