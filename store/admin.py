@@ -1,4 +1,5 @@
 from typing import Any
+
 from django.contrib import admin, messages
 from django.db.models import Count
 from django.db.models.query import QuerySet
@@ -8,6 +9,8 @@ from django.utils.html import format_html
 from django.utils.http import urlencode
 
 from . import models
+
+
 # Register your models here.
 
 
@@ -41,7 +44,7 @@ class CustomerAdmin(admin.ModelAdmin):
     list_display = ['first_name', 'last_name', 'membership', 'orders_count']
     list_editable = ['membership']
     list_per_page = 10
-    list_select_related = ['user',]
+    list_select_related = ['user', ]
     search_fields = ['user__first_name__istartswith',
                      'user__last_name__istartswith']
     ordering = ['user__first_name', 'user__last_name']
@@ -70,17 +73,28 @@ class inventory_status(admin.SimpleListFilter):
             return queryset.filter(inventory__lt=10)
 
 
+class ProductImageInline(admin.TabularInline):
+    model = models.ProductImage
+    readonly_fields = ['thumbnail']
+
+    def thumbnail(self, productimage):
+        if productimage.image.name != '':
+            return format_html(f'<img src={productimage.image.url}  class="thumbnail"/>')
+        return ''
+
+
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
     actions = ['clear_inventory']
     autocomplete_fields = ['collection']
+    inlines = [ProductImageInline]
     list_display = ['id', 'title', 'unit_price',
                     'inventory_status', 'collection', 'last_update']
     list_editable = ['unit_price']
     list_filter = ['collection', 'last_update', inventory_status]
     list_per_page = 10
     ordering = ['title', 'unit_price']
-    prepopulated_fields = {'slug': ['title',]}
+    prepopulated_fields = {'slug': ['title', ]}
     readonly_fields = ['id', 'last_update']
     search_fields = ['title__istartswith']
 
@@ -91,8 +105,13 @@ class ProductAdmin(admin.ModelAdmin):
     @admin.action(description='Clear inventory')
     def clear_inventory(self, request, queryset):
         update_count = queryset.update(inventory=0)
-        self.message_user(request, f'{update_count} product(s) sucessfully updated.',
+        self.message_user(request, f'{update_count} product(s) successfully updated.',
                           messages.ERROR)
+
+    class Media:
+        css = {
+            'all': ['store/styles.css']
+        }
 
 
 @admin.register(models.Collection)
