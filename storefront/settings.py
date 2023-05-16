@@ -177,3 +177,7 @@ EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_PORT = 2525
 DEFAULT_FROM_EMAIL = 'from@sstore.com'
+
+ADMINS = [
+    ('sina', 'sinarasouli79@yahoo.com'),
+]
