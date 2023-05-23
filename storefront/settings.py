@@ -181,3 +181,5 @@ DEFAULT_FROM_EMAIL = 'from@sstore.com'
 ADMINS = [
     ('sina', 'sinarasouli79@yahoo.com'),
 ]
+
+CELERY_BROKER_URL = 'redis://localhost:6379/1'
