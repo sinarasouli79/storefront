@@ -10,7 +10,7 @@ from . import serializers
 from .filters import ProductFilter
 from .models import Cart, CartItem, Collection, Customer, Order, Product, Review, ProductImage
 from .pagination import DefaultPagination
-from .permissions import FullDjangoModelPermissions, IsAdminOrReadOnly, ViewHistoryPermission
+from .permissions import IsAdminOrReadOnly, ViewHistoryPermission, FullDjangoModelPermissions
 
 
 # Create your views here.
@@ -87,6 +87,7 @@ class CartItemViewSet(ModelViewSet):
 class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = serializers.CustomerSerializer
+
     permission_classes = [FullDjangoModelPermissions]
 
     @action(detail=True, permission_classes=[ViewHistoryPermission])
