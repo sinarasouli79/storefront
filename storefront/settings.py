@@ -64,8 +64,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-if DEBUG:
-    MIDDLEWARE += ['silk.middleware.SilkyMiddleware', ]
+#
+# if DEBUG:
+#     MIDDLEWARE += ['silk.middleware.SilkyMiddleware', ]
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8001',

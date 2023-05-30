@@ -1,8 +1,7 @@
+import requests
 from django.shortcuts import render
-
-from .tasks import notify_customers
 
 
 def say_hello(request):
-    notify_customers.delay('hi im sina')
+    requests.get('https://httpbin.org/delay/2')
     return render(request, 'playground/hello.html', {'name': 'Sina'})
