@@ -1,12 +1,19 @@
 import requests
-from django.core.cache import cache
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from rest_framework.views import APIView
 
 
-def say_hello(request):
-    key = 'httpbin'
-    if cache.get(key) is None:
+class HelloView(APIView):
+    @method_decorator(cache_page(60 * 10))
+    def get(self, request):
         response = requests.get('https://httpbin.org/delay/2')
         data = response.json()
-        cache.set(key, data)
-    return render(request, 'playground/hello.html', {'name': cache.get(key)})
+        return render(request, 'playground/hello.html', {'name': data})
+#
+# @cache_page(10 * 60)
+# def say_hello(request):
+#     response = requests.get('https://httpbin.org/delay/2')
+#     data = response.json()
+#     return render(request, 'playground/hello.html', {'name': data})
