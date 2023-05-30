@@ -25,4 +25,4 @@ class WebsiteUser(HttpUser):
     def add_to_cart(self):
         product_id = randint(1, 10)
         self.client.post(f'/store/carts/{self.cart_id}/items/', name='/store/carts/items/',
-                         json={"product": product_id, "quantity": 1})
+                         json={"product_id": product_id, "quantity": 1})

@@ -43,18 +43,19 @@ INSTALLED_APPS = [
     'django_filters',
     'debug_toolbar',
     'djoser',
+    'silk',
 
     # own
-    'core',
     'playground',
     'store',
     'tags',
     'likes',
+    'core',
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -63,6 +64,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+if DEBUG:
+    MIDDLEWARE += ['silk.middleware.SilkyMiddleware', ]
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8001',
     'http://127.0.0.1:8001',
@@ -102,7 +106,10 @@ DATABASES = {
         'NAME': 'storefront2',
         'HOST': 'localhost',
         'USER': 'root',
-        'PASSWORD': '02020255'
+        'PASSWORD': '02020255',
+        'OPTIONS': {
+            "init_command": "SET GLOBAL max_connections = 100000",
+        }
     }
 }
 
