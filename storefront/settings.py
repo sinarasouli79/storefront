@@ -65,9 +65,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-#
-# if DEBUG:
-#     MIDDLEWARE += ['silk.middleware.SilkyMiddleware', ]
+
+if DEBUG:
+    MIDDLEWARE += ['silk.middleware.SilkyMiddleware', ]
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8001',
@@ -219,22 +219,24 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler'
         },
-        'file': {
-            'class': 'logging.FileHandler',
-            'file_name': 'general.log'
-        }
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": "general.log",
+            "formatter": "verbose",
+        },
     },
     'loggers': {
         '': {
             'handlers': ['console', 'file'],
             'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO')
         },
-
-        'formatters': {
-            'verbose': {
-                'format': '{asctime} ({levelname}) - {name} - {message}',
-                'style': '{'
-            }
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} ({levelname}) - {name} - {message}',
+            'style': '{'
         }
+
     }
+
 }
