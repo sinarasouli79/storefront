@@ -30,6 +30,7 @@ urlpatterns = [
     path('auth/', include('djoser.urls.jwt')),
 
     # own
+    path('', include('core.urls')),
     path('playground/', include('playground.urls')),
     path('store/', include('store.urls')),
 ]
