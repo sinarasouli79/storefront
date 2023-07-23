@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'djoser',
     'silk',
+    'drf_yasg',
 
     # own
     'playground',

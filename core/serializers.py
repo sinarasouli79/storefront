@@ -19,3 +19,4 @@ class UserSerializer(DjoserUserSerializer):
 
     class Meta(DjoserUserSerializer.Meta):
         fields = ['email', 'id', 'username', 'first_name', 'last_name']
+        ref_name = 'CoreSerializer'  # add for drf-yasg library
