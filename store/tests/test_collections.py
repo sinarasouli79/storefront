@@ -5,16 +5,15 @@ from rest_framework import status
 from store.models import Collection
 
 
-@pytest.fixture
-def create_collection(api_client):
-    def do_create_collection(collection):
-        return api_client.post('/store/collections/', collection)
-
-    return do_create_collection
-
-
 @pytest.mark.django_db
 class TestCreateCollection:
+
+    @pytest.fixture
+    def create_collection(self, api_client):
+        def do_create_collection(collection):
+            return api_client.post('/store/collections/', collection)
+
+        return do_create_collection
 
     def test_if_user_is_anonymous_returns_401(self, create_collection):
         response = create_collection({'title': 'a'})
@@ -67,3 +66,83 @@ class TestRetrieveCollection:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert response.data['detail'] is not None
+
+
+@pytest.mark.django_db
+class TestUpdateCollection:
+    @pytest.fixture
+    def update_collection(self, api_client):
+        def _update_collection(collection, data):
+            return api_client.patch(f'/store/collections/{collection.id}/', data)
+
+        return _update_collection
+
+    def test_if_user_is_not_admin_return_403(self, authenticate, update_collection):
+        collection = baker.make(Collection)
+        authenticate(is_staff=False)
+
+        response = update_collection(collection, {'title': 'a'})
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_if_user_is_anonymous_return_401(self, update_collection):
+        collection = baker.make(Collection)
+
+        response = update_collection(collection, {'title': 'a'})
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_if_data_is_valid_return_200(self, update_collection, authenticate):
+        collection = baker.make(Collection)
+        authenticate(is_staff=True)
+
+        response = update_collection(collection, {'title': 'a'})
+
+        assert response.status_code == status.HTTP_200_OK
+        print(response.data)
+        assert response.data == {
+            'id': collection.id,
+            'title': 'a',
+            'products_count': 0
+        }
+
+    def test_if_collection_not_exist_return_404(self, update_collection, authenticate):
+        collection = baker.make(Collection, id=-1)
+        authenticate(is_staff=True)
+
+        response = update_collection(collection, {'title': 'a'})
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+class TestDeleteCollection:
+
+    @pytest.fixture
+    def delete_collection(self, api_client):
+        def _delete_collection(collection):
+            return api_client.delete(f'/store/collections/{collection.id}/')
+
+        return _delete_collection
+
+    def test_if_user_not_admin_return_403(self, authenticate, delete_collection):
+        collection = baker.make(Collection)
+        authenticate(is_staff=False)
+
+        response = delete_collection(collection)
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_if_user_admin_return_204(self, authenticate, delete_collection):
+        collection = baker.make(Collection)
+        authenticate(is_staff=True)
+
+        response = delete_collection(collection)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    def test_if_collection_not_exist_return_404(self, authenticate, delete_collection):
+        collection = baker.make(Collection, id=-1)
+        authenticate(is_staff=True)
+
+        response = delete_collection(collection)
