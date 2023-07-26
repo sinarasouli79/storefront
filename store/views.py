@@ -26,12 +26,14 @@ class ProductViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     search_fields = ['title', 'description']
 
-    def perform_destroy(self, instance):
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
         if instance.orderitem_set.exists():
             return Response(
                 {'error': 'There are some order items associated with this product that you should delete first.'},
                 status.HTTP_405_METHOD_NOT_ALLOWED)
-        return super().perform_destroy(instance)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CollectionViewSet(ModelViewSet):
@@ -39,12 +41,14 @@ class CollectionViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = serializers.CollectionSerializer
 
-    def perform_destroy(self, instance):
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
         if instance.product_set.exists():
             return Response(
                 {'error': "There are some product associated with this collection that you should delete first."},
                 status.HTTP_405_METHOD_NOT_ALLOWED)
-        return super().perform_destroy(instance)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ReviewViewSet(ModelViewSet):
