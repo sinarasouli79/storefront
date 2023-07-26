@@ -21,6 +21,7 @@ django-redis = "*"
 whitenoise = "*"
 gunicorn = "*"
 drf-yasg = "*"
+coverage = "*"
 
 [dev-packages]
 autopep8 = "*"

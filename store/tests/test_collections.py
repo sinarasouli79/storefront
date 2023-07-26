@@ -2,7 +2,7 @@ import pytest
 from model_bakery import baker
 from rest_framework import status
 
-from store.models import Collection
+from store.models import Collection, Product
 
 
 @pytest.mark.django_db
@@ -146,3 +146,14 @@ class TestDeleteCollection:
         authenticate(is_staff=True)
 
         response = delete_collection(collection)
+
+    def test_if_collection_products_not_empty_return_405(self, authenticate, delete_collection):
+        collection = baker.make(Collection)
+        products = baker.make(Product, collection=collection, _quantity=10)
+        print(collection.product_set.count())
+        authenticate(is_staff=True)
+
+        response = delete_collection(collection)
+
+        assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+        assert response.data['error'] is not None
